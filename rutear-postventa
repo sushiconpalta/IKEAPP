@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rutear Postventa · IKEA</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+–ikea-blue:   #0058A3;
+–ikea-yellow: #FFDA1A;
+–bg:          #f5f5f0;
+–surface:     #ffffff;
+–border:      #e2e2e2;
+–text:        #111111;
+–text-muted:  #888888;
+–sidebar-w:   260px;
+}
+
+body {
+background-color: var(–bg);
+color: var(–text);
+font-family: ‘Noto Sans’, sans-serif;
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+}
+
+/* ── TOP NAV ── */
+.topnav {
+background: var(–surface);
+border-bottom: 1.5px solid var(–border);
+padding: 0 20px;
+height: 52px;
+display: flex;
+align-items: center;
+gap: 16px;
+position: sticky;
+top: 0;
+z-index: 100;
+}
+
+.nav-brand {
+display: flex;
+align-items: center;
+gap: 10px;
+text-decoration: none;
+}
+
+.nav-logo {
+width: 32px;
+height: 32px;
+background: linear-gradient(135deg, #dce8f5, #c8dcf0);
+border-radius: 8px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 16px;
+border: 1px solid #d0e0f0;
+}
+
+.nav-title-group {
+display: flex;
+flex-direction: column;
+line-height: 1.1;
+}
+
+.nav-title {
+font-size: 12px;
+font-weight: 700;
+color: var(–ikea-blue);
+letter-spacing: 0.05em;
+font-family: ‘IBM Plex Mono’, monospace;
+}
+
+.nav-subtitle {
+font-size: 10px;
+color: var(–text-muted);
+font-weight: 400;
+}
+
+.nav-sep { flex: 1; }
+
+.nav-btn {
+display: flex;
+align-items: center;
+gap: 6px;
+padding: 6px 12px;
+border-radius: 8px;
+border: 1.5px solid var(–border);
+background: var(–surface);
+font-size: 12px;
+font-weight: 500;
+color: var(–text);
+cursor: pointer;
+transition: background 0.15s, border-color 0.15s;
+font-family: ‘Noto Sans’, sans-serif;
+}
+.nav-btn:hover { background: #f0f0ea; border-color: #ccc; }
+
+.nav-btn.primary {
+background: var(–ikea-blue);
+color: #fff;
+border-color: var(–ikea-blue);
+}
+.nav-btn.primary:hover { background: #004d8f; }
+
+.nav-btn.danger {
+color: #c00;
+border-color: #f0d0d0;
+}
+.nav-btn.danger:hover { background: #fff5f5; border-color: #c00; }
+
+.nav-btn .icon { font-size: 14px; }
+
+/* ── LAYOUT ── */
+.layout {
+display: flex;
+flex: 1;
+overflow: hidden;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+width: var(–sidebar-w);
+background: var(–surface);
+border-right: 1.5px solid var(–border);
+padding: 20px 0;
+display: flex;
+flex-direction: column;
+gap: 0;
+overflow-y: auto;
+flex-shrink: 0;
+}
+
+.sidebar-section {
+padding: 0 16px 16px;
+border-bottom: 1px solid var(–border);
+margin-bottom: 4px;
+}
+
+.sidebar-label {
+font-family: ‘IBM Plex Mono’, monospace;
+font-size: 9.5px;
+letter-spacing: 0.2em;
+color: var(–text-muted);
+text-transform: uppercase;
+margin-bottom: 12px;
+padding-top: 4px;
+}
+
+/* Repites module – highlighted */
+.module-item {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 9px 12px;
+border-radius: 10px;
+cursor: pointer;
+transition: background 0.15s;
+gap: 8px;
+margin-bottom: 2px;
+}
+.module-item:hover { background: #f0f4fb; }
+.module-item.active { background: #e8f0fb; }
+
+.module-left {
+display: flex;
+align-items: center;
+gap: 8px;
+}
+
+.module-icon {
+font-size: 15px;
+width: 22px;
+text-align: center;
+}
+
+.module-name {
+font-size: 13px;
+font-weight: 500;
+color: var(–text);
+}
+
+.module-toggle {
+font-size: 10px;
+color: var(–text-muted);
+}
+
+/* Excel paste area */
+.paste-label {
+font-size: 11px;
+font-weight: 600;
+color: var(–text-muted);
+letter-spacing: 0.04em;
+margin-bottom: 8px;
+}
+
+.paste-area {
+width: 100%;
+min-height: 80px;
+border: 1.5px dashed #ccc;
+border-radius: 10px;
+background: #fafafa;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 11px;
+color: #bbb;
+font-family: ‘IBM Plex Mono’, monospace;
+cursor: pointer;
+transition: border-color 0.15s, background 0.15s;
+padding: 12px;
+text-align: center;
+margin-bottom: 10px;
+outline: none;
+resize: vertical;
+}
+.paste-area:focus, .paste-area:hover {
+border-color: var(–ikea-blue);
+background: #f0f6ff;
+color: #888;
+}
+
+.load-btn {
+width: 100%;
+padding: 8px 0;
+border-radius: 8px;
+border: 1.5px solid var(–ikea-blue);
+background: transparent;
+color: var(–ikea-blue);
+font-size: 12px;
+font-weight: 600;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 6px;
+transition: background 0.15s;
+font-family: ‘Noto Sans’, sans-serif;
+}
+.load-btn:hover { background: #e8f0fb; }
+
+/* ── MAIN CONTENT ── */
+.content {
+flex: 1;
+display: flex;
+flex-direction: column;
+overflow: hidden;
+}
+
+/* Tab bar */
+.tabbar {
+background: var(–surface);
+border-bottom: 1.5px solid var(–border);
+padding: 0 20px;
+display: flex;
+align-items: center;
+gap: 4px;
+height: 44px;
+}
+
+.tab {
+display: flex;
+align-items: center;
+gap: 6px;
+padding: 6px 14px;
+border-radius: 8px;
+font-size: 12.5px;
+font-weight: 500;
+cursor: pointer;
+transition: background 0.15s, color 0.15s;
+color: var(–text-muted);
+border: 1.5px solid transparent;
+white-space: nowrap;
+background: none;
+font-family: ‘Noto Sans’, sans-serif;
+}
+.tab:hover { background: #f0f0ea; color: var(–text); }
+.tab.active {
+background: #e8f0fb;
+color: var(–ikea-blue);
+border-color: #c8d8f0;
+font-weight: 600;
+}
+
+.tab-badge {
+background: var(–ikea-blue);
+color: #fff;
+font-size: 10px;
+font-weight: 700;
+padding: 1px 6px;
+border-radius: 20px;
+font-family: ‘IBM Plex Mono’, monospace;
+}
+
+.tab-sep { flex: 1; }
+
+.export-btn {
+display: flex;
+align-items: center;
+gap: 6px;
+padding: 5px 12px;
+border-radius: 8px;
+border: 1.5px solid var(–border);
+background: var(–surface);
+font-size: 12px;
+font-weight: 500;
+color: var(–text);
+cursor: pointer;
+transition: background 0.15s;
+font-family: ‘Noto Sans’, sans-serif;
+}
+.export-btn:hover { background: #f0f0ea; }
+
+/* ── TABLE AREA ── */
+.table-area {
+flex: 1;
+padding: 20px;
+overflow: auto;
+display: flex;
+flex-direction: column;
+gap: 12px;
+}
+
+/* Stats row */
+.stats-row {
+display: flex;
+align-items: center;
+gap: 12px;
+flex-wrap: wrap;
+}
+
+.stat-chip {
+background: var(–surface);
+border: 1.5px solid var(–border);
+border-radius: 10px;
+padding: 10px 16px;
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+min-width: 90px;
+}
+
+.stat-value {
+font-family: ‘IBM Plex Mono’, monospace;
+font-size: 22px;
+font-weight: 600;
+color: var(–text);
+line-height: 1;
+}
+
+.stat-label {
+font-size: 10px;
+color: var(–text-muted);
+letter-spacing: 0.08em;
+text-transform: uppercase;
+margin-top: 4px;
+}
+
+.filter-hint {
+font-size: 12px;
+color: var(–text-muted);
+font-style: italic;
+}
+
+.refresh-btn {
+margin-left: auto;
+width: 32px;
+height: 32px;
+border-radius: 8px;
+border: 1.5px solid var(–border);
+background: var(–surface);
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+font-size: 14px;
+transition: background 0.15s;
+color: var(–text);
+}
+.refresh-btn:hover { background: #f0f0ea; }
+
+/* Empty state */
+.empty-state {
+flex: 1;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+gap: 16px;
+color: var(–text-muted);
+padding: 40px;
+}
+
+.empty-plus {
+width: 64px;
+height: 64px;
+border-radius: 50%;
+border: 2px dashed #ccc;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 28px;
+font-weight: 300;
+color: #ccc;
+transition: border-color 0.2s, color 0.2s;
+cursor: pointer;
+}
+.empty-plus:hover { border-color: var(–ikea-blue); color: var(–ikea-blue); }
+
+.empty-text {
+font-size: 16px;
+color: #bbb;
+text-align: center;
+line-height: 1.5;
+}
+</style>
+
+</head>
+<body>
+
+<!-- TOP NAV -->
+
+<nav class="topnav">
+  <a class="nav-brand" href="index.html">
+    <div class="nav-logo">🚛</div>
+    <div class="nav-title-group">
+      <span class="nav-title">RUTEAR POSTVENTA</span>
+      <span class="nav-subtitle">IKEA · Sistema de Gestión de Rutas</span>
+    </div>
+  </a>
+  <div class="nav-sep"></div>
+  <button class="nav-btn">
+    <span class="icon">📊</span> Excel
+  </button>
+  <button class="nav-btn primary">
+    <span class="icon">💾</span> Guardar JSON
+  </button>
+  <button class="nav-btn" disabled style="opacity:.4">
+    <span class="icon">📂</span> Cargar JSON
+  </button>
+  <button class="nav-btn danger">
+    <span class="icon">🗑</span> Limpiar
+  </button>
+</nav>
+
+<!-- LAYOUT -->
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+
+  <aside class="sidebar">
+
+```
+<!-- Repites module -->
+<div class="sidebar-section">
+  <div class="sidebar-label">Módulos de Carga</div>
+
+  <div class="module-item active">
+    <div class="module-left">
+      <span class="module-icon">📦</span>
+      <span class="module-name">Repites</span>
+    </div>
+    <span class="module-toggle">▼</span>
+  </div>
+
+  <div style="padding: 12px 4px 0;">
+    <div class="paste-label">PEGA TABLA EXCEL</div>
+    <textarea class="paste-area" placeholder="Ctrl+V desde Excel..."></textarea>
+    <button class="load-btn">▶ Cargar Repites</button>
+  </div>
+</div>
+
+<!-- Other modules -->
+<div style="padding: 8px 16px; display: flex; flex-direction: column; gap: 2px;">
+  <div class="module-item">
+    <div class="module-left">
+      <span class="module-icon">↩️</span>
+      <span class="module-name">Retiros</span>
+    </div>
+    <span class="module-toggle">▲</span>
+  </div>
+  <div class="module-item">
+    <div class="module-left">
+      <span class="module-icon">🔄</span>
+      <span class="module-name">Envío y Retiro</span>
+    </div>
+    <span class="module-toggle">▲</span>
+  </div>
+  <div class="module-item">
+    <div class="module-left">
+      <span class="module-icon">🔁</span>
+      <span class="module-name">Cruce Vehículos</span>
+    </div>
+    <span class="module-toggle">▲</span>
+  </div>
+  <div class="module-item">
+    <div class="module-left">
+      <span class="module-icon">🏗</span>
+      <span class="module-name">Proyectos Leslie</span>
+    </div>
+    <span class="module-toggle">▲</span>
+  </div>
+  <div class="module-item">
+    <div class="module-left">
+      <span class="module-icon">✂️</span>
+      <span class="module-name">K8</span>
+    </div>
+    <span class="module-toggle">▲</span>
+  </div>
+</div>
+```
+
+  </aside>
+
+  <!-- MAIN CONTENT -->
+
+  <div class="content">
+
+```
+<!-- Tab bar -->
+<div class="tabbar">
+  <button class="tab active">
+    <span>📊</span> Dashboard
+    <span class="tab-badge">0</span>
+  </button>
+  <div class="tab-sep"></div>
+  <button class="export-btn">📋 Exportar Plantillas</button>
+</div>
+
+<!-- Table area -->
+<div class="table-area">
+  <div class="stats-row">
+    <div class="stat-chip">
+      <span class="stat-value">0</span>
+      <span class="stat-label">Total</span>
+    </div>
+    <span class="filter-hint">Sin filtros activos — haz clic en ▼ de cualquier columna para filtrar</span>
+    <button class="refresh-btn" title="Refrescar">⟳</button>
+  </div>
+
+  <!-- Empty state -->
+  <div class="empty-state">
+    <div class="empty-plus">+</div>
+    <div class="empty-text">Crea una tabla nueva<br>o carga datos desde el sidebar</div>
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+</body>
+</html>
